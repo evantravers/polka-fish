@@ -1,8 +1,5 @@
-set -x xterm-256color
-
-function fish_prompt -d "Write out the prompt"
-  printf '%s@%s%s%s%s> '  (whoami) (hostname|cut -d . -f 1) (set_color $fish_color_cwd) (prompt_pwd) (set_color normal)
-end
+set -x TERM=xterm-256color
+set -x EDITOR=vim
 
 if status --is-login
   for p in /usr/bin /usr/local/bin /opt/local/ ~/bin $HOME/.rbenv/bin $HOME/.rbenv/shims
@@ -19,18 +16,18 @@ function parse_git_branch
 end
 
 function fish_prompt -d "Write out the prompt"
-  printf '%s%s@%s%s' (set_color brown) (whoami) (hostname|cut -d . -f 1) (set_color normal)
+  printf '┌─[%s%s@%s%s]─[' (set_color yellow) (whoami) (hostname|cut -d . -f 1) (set_color normal)
 
   # Color writeable dirs green, read-only dirs red
   if test -w "."
-    printf ' %s%s' (set_color green) (prompt_pwd)
+    printf '%s%s%s]' (set_color green) (prompt_pwd) (set_color normal)
   else
-    printf ' %s%s' (set_color red) (prompt_pwd)
+    printf '%s%s%s]' (set_color red) (prompt_pwd) (set_color normal)
   end
 
         # Print subversion tag or branch
         if test -d ".svn"
-                printf ' %s%s%s' (set_color normal) (set_color blue) (parse_svn_tag_or_branch)
+          printf ' %s%s%s' (set_color normal) (set_color blue) (parse_svn_tag_or_branch)
         end
 
   # Print subversion revision
@@ -40,12 +37,16 @@ function fish_prompt -d "Write out the prompt"
 
   # Print git branch
   if test -d ".git"
-    printf ' %s%s/%s' (set_color normal) (set_color blue) (parse_git_branch)
+    printf '%s─[%s%s%s]' (set_color normal) (set_color blue) (parse_git_branch) (set_color normal)
   end
-  printf '%s> ' (set_color normal)
+  printf '%s\n└─> ' (set_color normal)
 end
 
 rbenv rehash >/dev/null ^&1
+
+function pcd
+  cd ~/projects/ $argv
+end
 
 function git
   hub $argv
